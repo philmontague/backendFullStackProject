@@ -10,6 +10,6 @@ module.exports = {
         user: 'philandrosie', 
         host: 'localhost', 
         port: 5432, 
-        name: 'philsProductShop'
+        name: 'philsEcommerceShop'
     }
 }
