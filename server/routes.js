@@ -1,8 +1,20 @@
 const express = require('express');
 const router = express.Router();
 const db = require('./db');
-const { authenticateUser } = require('./middleware');
-const { getCartForUser, addToCart } = require('./cartController');
+const { authenticateUser, authenticateAdmin } = require('./middleware');
+const { getCartForUser, addToCart, updateCartItem, removeCartItem, checkoutProduct } = require('./cartController');
+
+// getAllUsers function 
+const getAllUsers = async (req, res) => { 
+    try {
+        const SQL = `SELECT * FROM users`; 
+        const { rows } = await db.query(SQL); 
+        res.json(rows); 
+    } catch (error) {
+        console.error('Error fetching all users:', error); 
+        res.status(500).json({ error: 'Internal Server Error'}); 
+    }
+}
 
 router.get('/products', async (req, res) => {
     try {
@@ -33,8 +45,22 @@ router.get('/product/:id', async (req, res) => {
     }
 });
 
+// Get cart for user
 router.get('/user/:id', authenticateUser, getCartForUser);
 
+// Add item to cart 
 router.post('/cart', authenticateUser, addToCart); 
+
+// Update item in cart
+router.put('/cart/:id', authenticateUser, updateCartItem); 
+
+// Remove item from cart 
+router.delete('/cart/:id', authenticateUser, removeCartItem); 
+
+// Get all users (Admin) 
+router.get('/users', authenticateUser, authenticateAdmin, getAllUsers); 
+
+// Cart checkout 
+router.put('/cart/:id/checkout', authenticateUser, checkoutProduct); 
 
 module.exports = router;

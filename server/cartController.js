@@ -34,5 +34,89 @@ const getCartForUser = async (req, res) => {
     }
 }
 
-module.exports = { getCartForUser, addToCart };
+const updateCartItem = async (req, res) => {
+    try {
+        const { id } = req.params; 
+        const { quantity } = req.body; 
+
+        if (!id || !quantity) { 
+            return res.status(400).json({ error: 'Missing required fields' }); 
+        }
+
+        const SQL = `
+            UPDATE cart 
+            SET quantity = $1
+            WHERE id = $2
+            RETURNING *
+        `; 
+        const { rows } = await db.query(SQL, [quantity, id]); 
+
+        if (rows.length === 0) {
+            return res.status(404).json({ error: 'Cart item not found' }); 
+        }
+
+        res.status(200).json(rows[0]); 
+
+    } catch (error) {
+        console.error('Error updating cart item:', error); 
+        res.status(500).json({ error: 'Internal Server Error' }); 
+    }
+}
+
+const removeCartItem = async (req, res) => {
+    try {
+        const { id } = req.params; 
+
+        if (!id) {
+            return res.status(400).json({ error: 'Missing required fields' }); 
+        }
+
+        const SQL = `
+            DELETE FROM cart
+            WHERE id = $1
+            RETURNING *
+        `; 
+        const { rows } = await db.query(SQL, [id]); 
+
+        if (rows.length === 0) {
+            return res.status(404).json({ error: 'Cart item not found' }); 
+        }
+
+        res.status(404).json({ message: 'Cart item removed successfully' }); 
+
+    } catch (error) {
+        console.error('Error removing cart item:', error); 
+        res.status(500).json({ error: 'Interal Server Error' }); 
+    }
+}
+
+const checkoutProduct = async (req, res) => {
+    try {
+        const { id } = req.params; 
+
+        if (!id) {
+            return res.status(400).json({ error: 'Missing required fields'}); 
+        }
+
+        const SQL = `
+            UPDATE cart
+            SET status = 'checked_out'
+            WHERE id = $1
+            RETURNING *
+        `; 
+        const { rows } = await db.query(SQL, [id]); 
+
+        if (rows.length === 0) {
+            return res.status(404).json({ error: 'Cart item not found'}); 
+        }
+
+        res.status(200).json(rows[0]); 
+
+    } catch (error) {
+        console.error('Error checking out product:', error); 
+        res.status(500).json({ error: 'Internal Server Error' }); 
+    }
+}
+
+module.exports = { getCartForUser, addToCart, updateCartItem, removeCartItem, checkoutProduct };
 
