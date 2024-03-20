@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require('./db');
 const { authenticateUser, authenticateAdmin } = require('./middleware');
 const { getCartForUser, addToCart, updateCartItem, removeCartItem, checkoutProduct } = require('./cartController');
+const { addProduct, editProduct, removeProduct } = require('./productController'); 
 
 // getAllUsers function 
 const getAllUsers = async (req, res) => { 
@@ -62,5 +63,14 @@ router.get('/users', authenticateUser, authenticateAdmin, getAllUsers);
 
 // Cart checkout 
 router.put('/cart/:id/checkout', authenticateUser, checkoutProduct); 
+
+// Add product 
+router.post('/products', authenticateAdmin, addProduct); 
+
+// Edit product 
+router.put('/product/:id', authenticateAdmin, editProduct); 
+
+// Remove product 
+router.delete('/product/:id', authenticateAdmin, removeProduct); 
 
 module.exports = router;
