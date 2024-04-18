@@ -43,6 +43,15 @@ const createTables = async () => {
            )
         `); 
 
+        await client.query(`
+           CREATE TABLE IF NOT EXISTS products ( 
+            id SERIAL PRIMARY KEY, 
+            name VARCHAR(255), 
+            description TEXT, 
+            price NUMERIC
+           )
+        `); 
+
         client.release();
         console.log('Tables created successfully');
     } catch (error) {
